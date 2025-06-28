@@ -1,3 +1,5 @@
+"use client"
+
 import FundWalletButton from '../components/FundWalletButton';
 import BuyAirtimeButton from '../components/BuyAirtimeButton';
 import BuyDataButton from '../components/BuyDataButton';
