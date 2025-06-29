@@ -2,6 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface LoginFormInputs {
     phone: string;
@@ -39,6 +40,12 @@ export default function LoginForm() {
                 {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
             </div>
             <button type="submit" className="cursor-pointer w-full py-2 mt-2 rounded-lg bg-blue-500/80 text-white font-semibold shadow hover:bg-blue-600/80 transition">Login</button>
+            <div className="text-center mt-4">
+                <span className="text-gray-600">Don't have an account? </span>
+                <Link href="/auth/register" className="text-blue-600 hover:text-blue-700 font-medium">
+                    Register here
+                </Link>
+            </div>
         </form>
     );
 } 
