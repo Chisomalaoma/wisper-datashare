@@ -1,12 +1,11 @@
 "use client"
 
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLoginUser } from "../../hooks/useAuth";
 import { useState } from "react";
 import Toast from "../Toast";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -48,7 +47,6 @@ export default function LoginForm() {
         resolver: yupResolver(loginSchema),
     });
 
-    const router = useRouter();
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; isVisible: boolean }>({
         message: '',
         type: 'info',
@@ -61,10 +59,7 @@ export default function LoginForm() {
 
     // Define success handler
     const onSuccess = (data: LoginResponse) => {
-
-        console.log(data);
         const token = data?.token;
-        const user = data?.user;
 
         if (token) {
             showToast('Login successful!', 'success');

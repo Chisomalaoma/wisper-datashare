@@ -8,7 +8,7 @@ import Toast from '../Toast';
 
 interface CombinedFormInputs {
     firstName: string;
-    surname: string;
+    lastName: string;
     phone: string;
     school: string;
     matric: string;
@@ -35,15 +35,15 @@ export default function CombinedRegisterForm() {
     const watchedNin = watch('nin');
     const watchedPhone = watch('phone');
     const watchedFirstName = watch('firstName');
-    const watchedSurname = watch('surname');
+    const watchedLastName = watch('lastName');
 
     const showToast = (message: string, type: 'success' | 'error' | 'info') => {
         setToast({ message, type, isVisible: true });
     };
 
     const handleRequestOTP = async () => {
-        if (!watchedNin || !watchedPhone || !watchedFirstName || !watchedSurname) {
-            showToast('Please fill in First Name, Surname, Phone Number, and NIN before requesting OTP', 'error');
+        if (!watchedNin || !watchedPhone || !watchedFirstName || !watchedLastName) {
+            showToast('Please fill in First Name, Last Name, Phone Number, and NIN before requesting OTP', 'error');
             return;
         }
 
@@ -109,13 +109,13 @@ export default function CombinedRegisterForm() {
                             {errors.firstName && <span className="text-red-500 text-xs">{errors.firstName.message}</span>}
                         </div>
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">Surname</label>
+                            <label className="block text-gray-700 font-medium mb-1">Last Name</label>
                             <input
-                                {...register('surname', { required: 'Surname is required' })}
+                                {...register('lastName', { required: 'Last Name is required' })}
                                 className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
-                                placeholder="Enter surname"
+                                placeholder="Enter last name"
                             />
-                            {errors.surname && <span className="text-red-500 text-xs">{errors.surname.message}</span>}
+                            {errors.lastName && <span className="text-red-500 text-xs">{errors.lastName.message}</span>}
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">Email Address</label>
@@ -194,7 +194,7 @@ export default function CombinedRegisterForm() {
                                 <button
                                     type="button"
                                     onClick={handleRequestOTP}
-                                    disabled={requestOTPMutation.isPending || !watchedNin || !watchedPhone || !watchedFirstName || !watchedSurname}
+                                    disabled={requestOTPMutation.isPending || !watchedNin || !watchedPhone || !watchedFirstName || !watchedLastName}
                                     className="cursor-pointer px-4 py-2 bg-green-500/80 text-white rounded-lg hover:bg-green-600/80 disabled:bg-gray-400/60 disabled:cursor-not-allowed transition"
                                 >
                                     {requestOTPMutation.isPending ? 'Sending...' : 'Verify NIN'}

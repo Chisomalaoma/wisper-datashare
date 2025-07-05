@@ -21,7 +21,7 @@ export const API_CONFIG = {
             VERIFY_OTP: '/auth/verify-otp',
         },
         USER: {
-            PROFILE: '/user/profile',
+            PROFILE: '/users/profile',
             UPDATE: '/user/update',
         },
     },

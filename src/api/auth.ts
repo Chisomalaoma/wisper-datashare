@@ -15,7 +15,7 @@ export interface RequestOTPResponse {
 
 export interface RegisterRequest {
     firstName: string;
-    surname: string;
+    lastName: string;
     phone: string;
     school: string;
     matric: string;
@@ -32,7 +32,7 @@ export interface RegisterResponse {
     user?: {
         id: string;
         firstName: string;
-        surname: string;
+        lastName: string;
         phone: string;
         email: string;
     };
@@ -59,6 +59,35 @@ export interface LoginResponse {
     };
 }
 
+export interface UserProfileResponse {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    school: string;
+    matric: string;
+    nin: string;
+    Bank: Array<{
+        id: string;
+        bankName: string;
+        accountName: string;
+        bankAccountNumber: string;
+        bankCode: string;
+        createdAt: string;
+        updatedAt: string;
+        userId: string;
+    }>;
+    Wallet: {
+        id: string;
+        userId: string;
+        walletBalance: number;
+        walletPin: string | null;
+    };
+    createdAt: string;
+    updatedAt: string;
+}
+
 // Request OTP for NIN verification
 export const requestOTP = async (data: RequestOTPRequest): Promise<RequestOTPResponse> => {
     return defaultClient.post<RequestOTPResponse>(API_CONFIG.ENDPOINTS.AUTH.REQUEST_OTP, data);
@@ -72,6 +101,11 @@ export const registerUser = async (data: RegisterRequest): Promise<RegisterRespo
 // Login user
 export const loginUser = async (data: LoginRequest): Promise<LoginResponse> => {
     return defaultClient.post<LoginResponse>(API_CONFIG.ENDPOINTS.AUTH.LOGIN, data);
+};
+
+// Get user profile
+export const getUserProfile = async (): Promise<UserProfileResponse> => {
+    return defaultClient.get<UserProfileResponse>(API_CONFIG.ENDPOINTS.USER.PROFILE);
 };
 
 // Create a custom client with different configuration

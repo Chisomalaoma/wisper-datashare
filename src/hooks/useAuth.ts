@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { requestOTP, registerUser, loginUser, RequestOTPRequest, RegisterRequest, LoginRequest } from '../api/auth';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { requestOTP, registerUser, loginUser, getUserProfile, RequestOTPRequest, RegisterRequest, LoginRequest } from '../api/auth';
 
 // Hook for requesting OTP
 export const useRequestOTP = () => {
@@ -58,5 +58,16 @@ export const useLoginUser = (
                 onError(error);
             }
         },
+    });
+};
+
+// Hook for fetching user profile
+export const useUserProfile = () => {
+    return useQuery({
+        queryKey: ['userProfile'],
+        queryFn: getUserProfile,
+        enabled: !!localStorage.getItem('authToken'), // Only fetch if user is authenticated
+        staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+        retry: 1,
     });
 }; 
