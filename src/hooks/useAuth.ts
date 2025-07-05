@@ -63,10 +63,11 @@ export const useLoginUser = (
 
 // Hook for fetching user profile
 export const useUserProfile = () => {
+    const isClient = typeof window !== 'undefined';
     return useQuery({
         queryKey: ['userProfile'],
         queryFn: getUserProfile,
-        enabled: !!localStorage.getItem('authToken'), // Only fetch if user is authenticated
+        enabled: isClient && !!localStorage.getItem('authToken'), // Only fetch if user is authenticated and on client
         staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
         retry: 1,
     });
