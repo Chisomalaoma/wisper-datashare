@@ -24,6 +24,9 @@ export const API_CONFIG = {
             PROFILE: '/users/profile',
             UPDATE: '/user/update',
         },
+        DATAPLAN: {
+            GET: '/dataplan',
+        },
     },
 
     // Error messages

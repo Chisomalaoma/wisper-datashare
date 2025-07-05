@@ -2,20 +2,16 @@
 
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getDataPlans, DataPlan } from '../../api/data';
+import { useUserProfile } from '../../hooks/useAuth';
+import { allocateData, AllocateDataDto, AllocateDataResponse } from '../../api/data';
+import { useMutation } from '@tanstack/react-query';
 
-const NETWORKS = [
-    { label: 'MTN GIFTING', value: 'mtn_gifting' },
-    { label: 'AIRTEL GIFTING', value: 'airtel_gifting' },
-    { label: 'GLO GIFTING', value: 'glo_gifting' },
-    { label: '9MOBILE GIFTING', value: '9mobile_gifting' },
-];
-
-const DATA_PLANS = [
-    { label: '500.0 mb (monthly)', value: '500mb', price: 150 },
-    { label: '1.0 gb (monthly)', value: '1gb', price: 250 },
-    { label: '2.0 gb (monthly)', value: '2gb', price: 450 },
-    { label: '5.0 gb (monthly)', value: '5gb', price: 1100 },
-];
+// New type for the response
+type DataPlansByNetwork = {
+    [network: string]: DataPlan[];
+};
 
 interface BuyDataInputs {
     network: string;
@@ -23,26 +19,93 @@ interface BuyDataInputs {
     phone: string;
 }
 
+// Spinner component
+function Spinner() {
+    return (
+        <div className="flex items-center justify-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"></div>
+        </div>
+    );
+}
+
 export default function BuyDataForm() {
-    const { register, handleSubmit, watch, formState: { errors } } = useForm<BuyDataInputs>({
-        defaultValues: { network: NETWORKS[0].value, plan: DATA_PLANS[0].value }
+    const { register, handleSubmit, watch, formState: { errors } } = useForm<BuyDataInputs>();
+    const { data: dataPlans, isLoading, isError } = useQuery<DataPlansByNetwork>({
+        queryKey: ['dataPlans'],
+        queryFn: getDataPlans,
     });
-    const selectedPlan = watch('plan') || DATA_PLANS[0].value;
-    const planObj = DATA_PLANS.find(p => p.value === selectedPlan) || DATA_PLANS[0];
+    const { data: userProfile, isLoading: isProfileLoading } = useUserProfile();
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [successMsg, setSuccessMsg] = useState<string | null>(null);
+    const mutation = useMutation<AllocateDataResponse, any, AllocateDataDto>({
+        mutationFn: allocateData,
+        onSuccess: (data) => {
+            setSuccessMsg(data.message || 'Data purchase successful!');
+            setErrorMsg(null);
+        },
+        onError: (error: any) => {
+            setErrorMsg(error?.response?.data?.message || 'Data purchase failed.');
+            setSuccessMsg(null);
+        },
+    });
+
+    console.log({ dataPlans })
+
+    // Get all network names
+    const networkNames = dataPlans ? Object.keys(dataPlans) : [];
+    const selectedNetwork = watch('network') || networkNames[0] || '';
+    const plans = (dataPlans && dataPlans[selectedNetwork]) || [];
+    const selectedPlanValue = watch('plan') || (plans[0]?.id ?? '');
+    const planObj = plans.find(p => p.id === selectedPlanValue) || plans[0];
 
     const onSubmit = (data: BuyDataInputs) => {
-        console.log('Buy Data:', { ...data, price: planObj.price });
+        setErrorMsg(null);
+        setSuccessMsg(null);
+        if (!userProfile || !userProfile.Wallet) {
+            setErrorMsg('Unable to fetch wallet balance.');
+            return;
+        }
+        if (!planObj) {
+            setErrorMsg('Please select a valid data plan.');
+            return;
+        }
+        if (userProfile.Wallet.walletBalance < planObj.price) {
+            setErrorMsg('Insufficient wallet balance.');
+            return;
+        }
+        // Prepare DTO for backend
+        const dto: AllocateDataDto = {
+            phone: data.phone,
+            plan_size: planObj.plan_id ? String(planObj.plan_id) : planObj.volume + planObj.unit,
+            network: selectedNetwork,
+            // pin: '', // Optionally add pin if needed
+        };
+        mutation.mutate(dto);
     };
+
+    if (isLoading || isProfileLoading) return <Spinner />;
+    if (isError) return <div className="text-center py-8">Failed to load data plans.</div>;
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {errorMsg && <div className="text-red-600 text-center font-medium">{errorMsg}</div>}
+            {successMsg && <div className="text-green-600 text-center font-medium">{successMsg}</div>}
+            <div className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-2 mb-2">
+                <span className="text-white font-medium">Wallet Balance:</span>
+                <span className="text-xl font-bold text-white">
+                    ₦{userProfile?.Wallet?.walletBalance?.toLocaleString('en-NG', { minimumFractionDigits: 2 }) ?? '--'}
+                </span>
+            </div>
             <div>
                 <label className="block text-gray-700 font-medium mb-1">Network Provider</label>
                 <select
                     {...register('network', { required: true })}
                     className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur"
+                    defaultValue={networkNames[0]}
                 >
-                    {NETWORKS.map(n => <option key={n.value} value={n.value}>{n.label}</option>)}
+                    {networkNames.map((network: string) => (
+                        <option key={network} value={network}>{network.toUpperCase()}</option>
+                    ))}
                 </select>
             </div>
             <div>
@@ -50,8 +113,13 @@ export default function BuyDataForm() {
                 <select
                     {...register('plan', { required: true })}
                     className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur"
+                    defaultValue={plans[0]?.id}
                 >
-                    {DATA_PLANS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                    {plans.map((p: DataPlan) => (
+                        <option key={p.id} value={p.id}>
+                            {`${p.volume} ${p.unit} (${p.validity}) - ₦${p.price}`}
+                        </option>
+                    ))}
                 </select>
             </div>
             <div>
@@ -65,9 +133,9 @@ export default function BuyDataForm() {
             </div>
             <div className="flex items-center justify-between">
                 <span className="text-gray-700 font-medium">Cost:</span>
-                <span className="text-xl font-bold text-blue-700">₦{planObj.price}</span>
+                <span className="text-xl font-bold text-blue-700">₦{planObj?.price ?? '--'}</span>
             </div>
-            <button type="submit" className="w-full py-2 rounded-lg bg-blue-500/80 text-white font-semibold shadow hover:bg-blue-600/80 transition">Allocate</button>
+            <button type="submit" className="w-full py-2 cursor-pointer rounded-lg bg-blue-500/80 text-white font-semibold shadow hover:bg-blue-600/80 transition">Allocate</button>
         </form>
     );
 } 
