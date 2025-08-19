@@ -1,9 +1,13 @@
 import { defaultClient } from '../utils/axiosClient';
 import { API_CONFIG } from '../config/apiConfig';
-
 export interface RequestOTPRequest {
-    nin: string;
-    phone: string;
+  idNumber: string;
+  email?: string; // Optional since it's used in some contexts but not required by the API
+  firstname: string;
+  lastname: string;
+  dob: string;
+  gender: string;
+  phone: string;
 }
 
 export interface RequestOTPResponse {
@@ -11,19 +15,28 @@ export interface RequestOTPResponse {
     message: string;
     requestId?: string;
     otpSent?: boolean;
+    status?: string;
+    fieldMatches?: {
+        firstname: boolean;
+        lastname: boolean;
+        gender: boolean;
+        phoneNumber: boolean;
+        emailAddress: boolean;
+    };
 }
 
 export interface RegisterRequest {
-    firstName: string;
-    lastName: string;
+    firstname: string;
+    lastname: string;
     phone: string;
     school: string;
     matric: string;
     nin: string;
     email: string;
     password: string;
+    dob: string;
+    gender: string;
     requestId?: string;
-    otp?: string;
 }
 
 export interface RegisterResponse {
@@ -31,8 +44,8 @@ export interface RegisterResponse {
     message: string;
     user?: {
         id: string;
-        firstName: string;
-        lastName: string;
+        firstname: string;
+        lastname: string;
         phone: string;
         email: string;
     };
@@ -49,8 +62,8 @@ export interface LoginResponse {
     token: string;
     user: {
         id: string;
-        firstName: string;
-        surname: string;
+        firstname: string;
+        lastname: string;
         email: string;
         phone: string;
         school: string;
@@ -61,8 +74,8 @@ export interface LoginResponse {
 
 export interface UserProfileResponse {
     id: string;
-    firstName: string;
-    lastName: string;
+    firstname: string;
+    lastname: string;
     email: string;
     phone: string;
     school: string;
@@ -90,7 +103,7 @@ export interface UserProfileResponse {
 
 // Request OTP for NIN verification
 export const requestOTP = async (data: RequestOTPRequest): Promise<RequestOTPResponse> => {
-    return defaultClient.post<RequestOTPResponse>(API_CONFIG.ENDPOINTS.AUTH.REQUEST_OTP, data);
+    return defaultClient.post<RequestOTPResponse>(API_CONFIG.ENDPOINTS.AUTH.VERIFY_KYC, data);
 };
 
 // Register user with OTP verification

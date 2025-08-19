@@ -16,6 +16,7 @@ export const API_CONFIG = {
     ENDPOINTS: {
         AUTH: {
             REQUEST_OTP: '/auth/request-otp',
+            VERIFY_KYC:'/qoreid/nin',
             REGISTER: '/auth/register',
             LOGIN: '/auth/login',
             VERIFY_OTP: '/auth/verify-otp',

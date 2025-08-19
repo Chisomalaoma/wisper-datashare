@@ -76,7 +76,7 @@ export default function BuyDataForm() {
         // Prepare DTO for backend
         const dto: AllocateDataDto = {
             phone: data.phone,
-            plan_size: planObj.plan_id ? String(planObj.plan_id) : planObj.volume + planObj.unit,
+            plan_size: planObj.plan_id ? String(planObj.plan_id) :String( planObj.volume + planObj.unit),
             network: selectedNetwork,
             // pin: '', // Optionally add pin if needed
         };
