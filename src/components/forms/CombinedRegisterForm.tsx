@@ -1,105 +1,46 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRequestOTP, useRegisterUser } from '../../hooks/useAuth';
+import { useRegisterUser } from '../../hooks/useAuth';
 import Toast from '../Toast';
 
 interface CombinedFormInputs {
-    firstname: string;
-    lastname: string;
+    firstName: string;
+    lastName: string;
     phone: string;
     school: string;
     matric: string;
     nin: string;
     email: string;
     password: string;
-    dob: string;
-    gender: string;
 }
 
 export default function CombinedRegisterForm() {
-    const { register, handleSubmit, formState: { errors }, watch } = useForm<CombinedFormInputs>();
-    const [isNINVerified, setIsNINVerified] = useState(false);
-    const [otpRequested, setOtpRequested] = useState(false);
-    const [requestId, setRequestId] = useState<string>('');
-    const [ninVerificationStatus, setNinVerificationStatus] = useState<string>('');
+    const { register, handleSubmit, formState: { errors } } = useForm<CombinedFormInputs>();
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; isVisible: boolean }>({
         message: '',
         type: 'info',
         isVisible: false
     });
+    const [showPassword, setShowPassword] = useState(false);
 
-    const requestOTPMutation = useRequestOTP();
     const registerMutation = useRegisterUser();
-
-    const watchedNin = watch('nin');
-    const watchedPhone = watch('phone');
-    const watchedFirstName = watch('firstname');
-    const watchedLastName = watch('lastname');
-    const watchedEmail = watch('email');
-    const watchedDob = watch('dob');
-    const watchedGender = watch('gender');
 
     const showToast = (message: string, type: 'success' | 'error' | 'info') => {
         setToast({ message, type, isVisible: true });
     };
 
-    const handleRequestOTP = async () => {
-        if (!watchedNin || !watchedPhone || !watchedFirstName || !watchedLastName || !watchedDob || !watchedGender) {
-            showToast('Please fill in First Name, Last Name, Phone Number, Date of Birth, Gender, and NIN before requesting OTP', 'error');
-            return;
-        }
-
-        try {
-            const result = await requestOTPMutation.mutateAsync({
-                idNumber: watchedNin,
-                firstname: watchedFirstName,
-                lastname: watchedLastName,
-                dob: watchedDob,
-                email: watchedEmail,
-                gender: watchedGender,
-                phone: watchedPhone
-            });
-
-            if (result.success) {
-                // Check if we got an EXACT_MATCH from the backend
-                if (result.status === 'EXACT_MATCH') {
-                    setIsNINVerified(true);
-                    setNinVerificationStatus('EXACT_MATCH');
-                    showToast('NIN verification successful! You can now proceed with registration.', 'success');
-                } else {
-                    setIsNINVerified(false);
-                    setNinVerificationStatus(result.status || 'FAILED');
-                    showToast('NIN verification failed. Please check your details and try again.', 'error');
-                }
-                setRequestId(result.requestId || '');
-            } else {
-                setIsNINVerified(false);
-                setNinVerificationStatus('FAILED');
-                showToast(result.message || 'Failed to verify NIN', 'error');
-            }
-        } catch (error) {
-            showToast('Failed to verify NIN. Please try again.', 'error');
-        }
-    };
-
     const onSubmit = async (data: CombinedFormInputs) => {
-        if (!isNINVerified) {
-            showToast('Please verify your NIN first', 'error');
-            return;
-        }
 
+        console.log({ data })
         try {
-            const registrationData = {
-                ...data,
-                requestId: requestId
-            };
+            const result = await registerMutation.mutateAsync(data);
 
-            const result = await registerMutation.mutateAsync(registrationData);
-            if (result.success) {
-                showToast('Registration successful!', 'success');
+            console.log({ result })
+
+            if (result.user) {
                 // Redirect to dashboard or login
                 setTimeout(() => {
                     window.location.href = '/dashboard';
@@ -122,20 +63,20 @@ export default function CombinedRegisterForm() {
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">First Name</label>
                             <input
-                                {...register('firstname', { required: 'First name is required' })}
+                                {...register('firstName', { required: 'First name is required' })}
                                 className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
                                 placeholder="Enter first name"
                             />
-                            {errors.firstname && <span className="text-red-500 text-xs">{errors.firstname.message}</span>}
+                            {errors.firstName && <span className="text-red-500 text-xs">{errors.firstName.message}</span>}
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">Last Name</label>
                             <input
-                                {...register('lastname', { required: 'Last Name is required' })}
+                                {...register('lastName', { required: 'Last Name is required' })}
                                 className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
                                 placeholder="Enter last name"
                             />
-                            {errors.lastname && <span className="text-red-500 text-xs">{errors.lastname.message}</span>}
+                            {errors.lastName && <span className="text-red-500 text-xs">{errors.lastName.message}</span>}
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">Email Address</label>
@@ -162,42 +103,39 @@ export default function CombinedRegisterForm() {
                             />
                             {errors.phone && <span className="text-red-500 text-xs">{errors.phone.message}</span>}
                         </div>
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1">Date of Birth</label>
-                            <input
-                                type="date"
-                                {...register('dob', { required: 'Date of birth is required' })}
-                                className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
-                            />
-                            {errors.dob && <span className="text-red-500 text-xs">{errors.dob.message}</span>}
-                        </div>
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1">Gender</label>
-                            <select
-                                {...register('gender', { required: 'Gender is required' })}
-                                className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur"
-                            >
-                                <option value="">Select gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
-                            {errors.gender && <span className="text-red-500 text-xs">{errors.gender.message}</span>}
-                        </div>
+
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">Password</label>
-                            <input
-                                type="password"
-                                {...register('password', {
-                                    required: 'Password is required',
-                                    minLength: {
-                                        value: 6,
-                                        message: 'Password must be at least 6 characters'
-                                    }
-                                })}
-                                className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
-                                placeholder="Enter password (min 6 characters)"
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    {...register('password', {
+                                        required: 'Password is required',
+                                        minLength: {
+                                            value: 6,
+                                            message: 'Password must be at least 6 characters'
+                                        }
+                                    })}
+                                    className="w-full px-4 py-2 pr-12 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
+                                    placeholder="Enter password (min 6 characters)"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    {showPassword ? (
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
                             {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
                         </div>
                     </div>
@@ -226,29 +164,13 @@ export default function CombinedRegisterForm() {
                             {errors.matric && <span className="text-red-500 text-xs">{errors.matric.message}</span>}
                         </div>
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">BVN</label>
-                            <div className="flex gap-2">
-                                <input
-                                    {...register('nin', { required: 'BVN is required' })}
-                                    className="flex-1 px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
-                                    placeholder="Enter BVN"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleRequestOTP}
-                                    disabled={requestOTPMutation.isPending || !watchedNin || !watchedPhone || !watchedFirstName || !watchedLastName || !watchedDob || !watchedGender}
-                                    className="cursor-pointer px-4 py-2 bg-green-500/80 text-white rounded-lg hover:bg-green-600/80 disabled:bg-gray-400/60 disabled:cursor-not-allowed transition"
-                                >
-                                    {requestOTPMutation.isPending ? 'Verifying...' : 'Verify NIN'}
-                                </button>
-                            </div>
+                            <label className="block text-gray-700 font-medium mb-1">NIN</label>
+                            <input
+                                {...register('nin', { required: 'NIN is required' })}
+                                className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
+                                placeholder="Enter NIN"
+                            />
                             {errors.nin && <span className="text-red-500 text-xs">{errors.nin.message}</span>}
-                            {ninVerificationStatus === 'EXACT_MATCH' && (
-                                <span className="text-green-600 text-xs">✓ NIN verification successful</span>
-                            )}
-                            {ninVerificationStatus && ninVerificationStatus !== 'EXACT_MATCH' && (
-                                <span className="text-red-500 text-xs">✗ NIN verification failed: {ninVerificationStatus}</span>
-                            )}
                         </div>
 
 
@@ -258,10 +180,10 @@ export default function CombinedRegisterForm() {
                 {/* Submit Button */}
                 <button
                     type="submit"
-                    disabled={!isNINVerified || registerMutation.isPending}
+                    disabled={registerMutation.isPending}
                     className="w-full py-3 rounded-lg bg-blue-500/80 text-white font-semibold shadow hover:bg-blue-600/80 disabled:bg-gray-400/60 disabled:cursor-not-allowed transition text-lg"
                 >
-                    {registerMutation.isPending ? 'Registering...' : 'Register & Submit KYC'}
+                    {registerMutation.isPending ? 'Registering...' : 'Register'}
                 </button>
 
                 <div className="text-center mt-4">
