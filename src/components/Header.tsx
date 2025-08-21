@@ -28,7 +28,7 @@ export default function Header() {
             <div className="flex items-center gap-4">
                 {userProfile && (
                     <span className="text-gray-700 font-medium">
-                        Welcome, {userProfile.firstname}
+                        Welcome, {userProfile.firstName}
                     </span>
                 )}
                 <button
