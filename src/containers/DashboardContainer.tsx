@@ -18,9 +18,9 @@ export default function DashboardContainer() {
                     <Link href="/dashboard/data" className="cursor-pointer">
                         <button className="cursor-pointer w-full py-3 rounded-lg bg-blue-500/80 text-white font-semibold shadow hover:bg-blue-600/80 transition backdrop-blur text-lg">Buy Data</button>
                     </Link>
-                    <Link href="/dashboard/airtime" className="cursor-pointer">
+                    {/* <Link href="/dashboard/airtime" className="cursor-pointer">
                         <button className="cursor-pointer w-full py-3 rounded-lg bg-yellow-500/80 text-white font-semibold shadow hover:bg-yellow-600/80 transition backdrop-blur text-lg">Buy Airtime</button>
-                    </Link>
+                    </Link> */}
                     <Link href="/dashboard/fund-wallet" className="cursor-pointer">
                         <button className="cursor-pointer w-full py-3 rounded-lg bg-green-500/80 text-white font-semibold shadow hover:bg-green-600/80 transition backdrop-blur text-lg">Fund Wallet</button>
                     </Link>
