@@ -141,41 +141,36 @@ export default function CombinedRegisterForm() {
                     </div>
                 </div>
 
-                {/* KYC Section */}
-                <div className="mb-6">
+                {/* KYC Section - DISABLED for now */}
+                {/* <div className="mb-6">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">KYC Details</h3>
                     <div className="space-y-4">
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">School Name</label>
                             <input
-                                {...register('school', { required: 'School name is required' })}
+                                {...register('school')}
                                 className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
                                 placeholder="Enter school name"
                             />
-                            {errors.school && <span className="text-red-500 text-xs">{errors.school.message}</span>}
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">Matric Number</label>
                             <input
-                                {...register('matric', { required: 'Matric number is required' })}
+                                {...register('matric')}
                                 className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
                                 placeholder="Enter matric number"
                             />
-                            {errors.matric && <span className="text-red-500 text-xs">{errors.matric.message}</span>}
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">NIN</label>
                             <input
-                                {...register('nin', { required: 'NIN is required' })}
+                                {...register('nin')}
                                 className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
                                 placeholder="Enter NIN"
                             />
-                            {errors.nin && <span className="text-red-500 text-xs">{errors.nin.message}</span>}
                         </div>
-
-
                     </div>
-                </div>
+                </div> */}
 
                 {/* Submit Button */}
                 <button
