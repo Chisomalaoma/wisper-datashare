@@ -72,8 +72,8 @@ export default function BuyDataForm() {
     // Filter out 500MB plans
     const allPlans = (dataPlans && dataPlans[selectedNetwork]) || [];
     const plans = allPlans.filter(p => !(p.volume === 500 && p.unit === 'mb'));
-    const selectedPlanValue = watch('plan') || (plans[0]?.id ?? '');
-    const planObj = plans.find(p => p.id === selectedPlanValue) || plans[0];
+    const selectedPlanValue = watch('plan') || (plans[0]?.plan_id ?? '');
+    const planObj = plans.find(p => String(p.plan_id) === String(selectedPlanValue)) || plans[0];
 
     const onSubmit = (data: BuyDataInputs) => {
         if (!userProfile || !userProfile.Wallet) {
@@ -130,10 +130,10 @@ export default function BuyDataForm() {
                     <select
                         {...register('plan', { required: true })}
                         className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur"
-                        defaultValue={plans[0]?.id}
+                        defaultValue={plans[0]?.plan_id}
                     >
                         {plans.map((p: DataPlan) => (
-                            <option key={p.id} value={p.id}>
+                            <option key={p.plan_id} value={p.plan_id}>
                                 {`${p.volume} ${p.unit} (${p.validity}) - ₦${p.price}`}
                             </option>
                         ))}

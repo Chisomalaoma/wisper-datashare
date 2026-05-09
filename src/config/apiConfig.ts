@@ -26,7 +26,7 @@ export const API_CONFIG = {
             UPDATE: '/user/update',
         },
         DATAPLAN: {
-            GET: '/dataplan',
+            GET: '/allocate/data-plans',
         },
     },
 

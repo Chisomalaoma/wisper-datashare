@@ -6,10 +6,10 @@ export interface DataPlan {
     plan_id: number;
     network: string;
     price: number;
-    resellerPrice: number;
     volume: number;
     unit: 'mb' | 'gb' | 'tb';
     validity: string;
+    displayName?: string;
 }
 
 export type DataPlansByNetwork = {
@@ -18,7 +18,8 @@ export type DataPlansByNetwork = {
 
 // Fetch all data plans
 export const getDataPlans = async (): Promise<DataPlansByNetwork> => {
-    return defaultClient.get<DataPlansByNetwork>(API_CONFIG.ENDPOINTS.DATAPLAN.GET);
+    const response = await defaultClient.get<{ plans: DataPlansByNetwork; networks: string[] }>(API_CONFIG.ENDPOINTS.DATAPLAN.GET);
+    return response.plans;
 };
 
 export interface AllocateDataDto {
