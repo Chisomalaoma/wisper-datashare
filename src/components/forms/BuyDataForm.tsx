@@ -69,7 +69,9 @@ export default function BuyDataForm() {
     // Get all network names
     const networkNames = dataPlans ? Object.keys(dataPlans) : [];
     const selectedNetwork = watch('network') || networkNames[0] || '';
-    const plans = (dataPlans && dataPlans[selectedNetwork]) || [];
+    // Filter out 500MB plans
+    const allPlans = (dataPlans && dataPlans[selectedNetwork]) || [];
+    const plans = allPlans.filter(p => !(p.volume === 500 && p.unit === 'mb'));
     const selectedPlanValue = watch('plan') || (plans[0]?.id ?? '');
     const planObj = plans.find(p => p.id === selectedPlanValue) || plans[0];
 
