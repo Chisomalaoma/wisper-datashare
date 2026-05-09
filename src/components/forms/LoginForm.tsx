@@ -10,7 +10,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 interface LoginFormInputs {
-    email: string;
+    phone: string;
     password: string;
 }
 
@@ -23,12 +23,10 @@ interface ErrorResponse {
     message: string | string[];
 }
 
-// Yup validation schema
 const loginSchema = yup.object({
-    email: yup
+    phone: yup
         .string()
-        .required("Email is required")
-        .email("Please enter a valid email address")
+        .required("Phone number is required")
         .trim(),
     password: yup
         .string()
@@ -40,7 +38,7 @@ const loginSchema = yup.object({
 export default function LoginForm() {
     const { register, handleSubmit, formState: { errors }, reset } = useForm<LoginFormInputs>({
         defaultValues: {
-            email: "",
+            phone: "",
             password: "",
         },
         mode: "onChange",
@@ -58,54 +56,44 @@ export default function LoginForm() {
         setToast({ message, type, isVisible: true });
     };
 
-    // Define success handler
     const onSuccess = (data: LoginResponse) => {
         const token = data?.token;
-
         if (token) {
             showToast('Login successful!', 'success');
-            reset(); // Reset form after successful login
+            reset();
             setTimeout(() => {
                 window.location.href = '/dashboard';
             }, 1000);
         }
     };
 
-    // Define error handler
     const onError = (error: AxiosError<ErrorResponse>) => {
         const errorMessage = error?.response?.data?.message;
         const descriptions = Array.isArray(errorMessage)
             ? errorMessage
             : [errorMessage || 'Login failed. Please try again.'];
-
         showToast(descriptions[0], 'error');
     };
 
-    // Use the mutation with callbacks
     const loginMutation = useLoginUser(onError, onSuccess);
 
     const onSubmit = (data: LoginFormInputs) => {
-        // Use mutate instead of mutateAsync
         loginMutation.mutate(data);
     };
 
     return (
         <>
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="space-y-4"
-                noValidate
-            >
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                 <div>
-                    <label className="block text-gray-700 font-medium mb-1">Email Address</label>
+                    <label className="block text-gray-700 font-medium mb-1">Phone Number</label>
                     <input
-                        type="email"
-                        {...register('email')}
+                        type="tel"
+                        {...register('phone')}
                         className="w-full px-4 py-2 rounded-lg bg-white/60 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500 text-gray-900"
-                        placeholder="e.g. john.doe@example.com"
-                        autoComplete="email"
+                        placeholder="e.g. 08123456789"
+                        autoComplete="tel"
                     />
-                    {errors.email && <span className="text-red-500 text-xs">{errors.email.message}</span>}
+                    {errors.phone && <span className="text-red-500 text-xs">{errors.phone.message}</span>}
                 </div>
                 <div>
                     <label className="block text-gray-700 font-medium mb-1">Password</label>
