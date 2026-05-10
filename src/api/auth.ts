@@ -27,9 +27,10 @@ export interface RegisterRequest {
   firstName: string;
   lastName: string;
   phone: string;
-  school: string;
-  matric: string;
-  nin: string;
+  school?: string;
+  matric?: string;
+  nin?: string;
+  bvn: string;
   email: string;
   password: string;
   requestId?: string;

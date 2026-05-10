@@ -13,6 +13,7 @@ interface CombinedFormInputs {
     school: string;
     matric: string;
     nin: string;
+    bvn: string;
     email: string;
     password: string;
 }
@@ -102,6 +103,40 @@ export default function CombinedRegisterForm() {
                                 placeholder="e.g. 08123456789"
                             />
                             {errors.phone && <span className="text-red-500 text-xs">{errors.phone.message}</span>}
+                        </div>
+
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-1">BVN <span className="text-gray-400 text-xs font-normal">(Bank Verification Number)</span></label>
+                            <input
+                                {...register('bvn', {
+                                    required: 'BVN is required',
+                                    pattern: {
+                                        value: /^\d{11}$/,
+                                        message: 'BVN must be exactly 11 digits'
+                                    }
+                                })}
+                                className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
+                                placeholder="Enter your 11-digit BVN"
+                                maxLength={11}
+                            />
+                            {errors.bvn && <span className="text-red-500 text-xs">{errors.bvn.message}</span>}
+                            <p className="text-gray-400 text-xs mt-1">Required to create your virtual wallet account</p>
+                        </div>
+
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-1">NIN <span className="text-gray-400 text-xs font-normal">(National Identification Number - Optional)</span></label>
+                            <input
+                                {...register('nin', {
+                                    pattern: {
+                                        value: /^\d{11}$/,
+                                        message: 'NIN must be exactly 11 digits'
+                                    }
+                                })}
+                                className="w-full px-4 py-2 rounded-lg bg-white/60 text-gray-900 border border-gray-300/40 focus:outline-none focus:ring-2 focus:ring-blue-400 backdrop-blur placeholder-gray-500"
+                                placeholder="Enter your 11-digit NIN (optional)"
+                                maxLength={11}
+                            />
+                            {errors.nin && <span className="text-red-500 text-xs">{errors.nin.message}</span>}
                         </div>
 
                         <div>
